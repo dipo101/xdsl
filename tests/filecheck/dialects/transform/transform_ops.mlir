@@ -87,7 +87,7 @@
 %tiled, %loop = "transform.structured.tile_using_for"(%to_tile) <{static_sizes = array<i64: 8, 0>}> : (!transform.any_value) -> (!transform.any_op, !transform.any_op)
 
 %to_match = "test.op"() : () -> !transform.any_op
-// CHECK: %matched = "transform.structured.match"(%to_match) <{ops = [], op_attrs = {}}> : (!transform.any_op) -> !transform.any_op
+// CHECK: %matched = transform.structured.match ops{[]} attributes {} in %to_match : (!transform.any_op) -> !transform.any_op
 %matched = "transform.structured.match"(%to_match) <{ops = [], op_attrs = {}}> : (!transform.any_op) -> !transform.any_op
 
 %to_apply_registered_pass = "test.op"() : () -> !transform.op<"builtin.module">
@@ -96,3 +96,7 @@
 
 // CHECK: %applied_registered_pass_opts = transform.apply_registered_pass "foo" with options = {foo = 1 : i32} to %to_apply_registered_pass : (!transform.op<"builtin.module">) -> !transform.op<"builtin.module">
 %applied_registered_pass_opts = transform.apply_registered_pass "foo" with options = {foo = 1 : i32} to %to_apply_registered_pass : (!transform.op<"builtin.module">) -> !transform.op<"builtin.module">
+
+%to_match_full = "test.op"() : () -> !transform.any_op
+// CHECK: %matched_full = transform.structured.match ops{["linalg.matmul", "linalg.generic"]} interface{TilingInterface} attributes {foo = 1 : i64} filter_result_type = f32 filter_operand_types = [f32, f32] in %to_match_full : (!transform.any_op) -> !transform.any_op
+%matched_full = transform.structured.match ops{["linalg.matmul", "linalg.generic"]} interface{TilingInterface} attributes {foo = 1 : i64} filter_result_type = f32 filter_operand_types = [f32, f32] in %to_match_full : (!transform.any_op) -> !transform.any_op
